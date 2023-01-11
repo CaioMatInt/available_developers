@@ -20,7 +20,7 @@ AvailableDevelopers.com is a platform that aims to connect recruiters with devel
 
 ## Software Requirements Specification
 
-[TBD](https://docs.google.com/document/d/1klx_Qd8p1vyyrxcfOdXcJFAP5EVCG872z4z9Y9cWcBk/edit#)
+https://docs.google.com/document/d/1klx_Qd8p1vyyrxcfOdXcJFAP5EVCG872z4z9Y9cWcBk/edit#
 
 ## Getting Started
 
