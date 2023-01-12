@@ -14,8 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('authentication')->group(function () {
+Route::prefix('users')->group(function () {
     Route::post('login', [UserController::class, 'login'])->name('user.login');
+    Route::post('login/{provider_name}', [
+        UserController::class, 'loginWithProvider'
+    ])->name('user.login');
+
+    Route::post('login/{provider_name}/callback', [
+        UserController::class, 'loginCallbackOfProvider'
+    ])->name('user.login');
+
     Route::post('register', [UserController::class, 'register'])->name('user.register');
     Route::post('password/forgot', [UserController::class, 'sendPasswordResetLinkEmail'])->name('user.password.forgot');
     Route::post('password/reset', [UserController::class, 'resetPassword'])->name('user.password.reset');

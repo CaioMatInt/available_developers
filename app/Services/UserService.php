@@ -37,6 +37,11 @@ class UserService
         ]);
     }
 
+    public function loginWithExternalWebsite()
+    {
+        
+    }
+
     public function logout(User $user): void
     {
         $user->currentAccessToken()->delete();

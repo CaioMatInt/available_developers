@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factories\Authentication\ProviderServiceFactory;
 use App\Http\Requests\Authentication\LoginRequest;
 use App\Http\Requests\Authentication\RegisterRequest;
 use App\Http\Requests\Authentication\ResetPasswordRequest;
@@ -16,12 +17,20 @@ class UserController extends Controller
 {
     public function __construct(
         private UserRepository $userRepository,
-        private UserService $authenticationService
+        private UserService $userService,
+        private ProviderServiceFactory $providerServiceFactory
     ) { }
 
     public function login(LoginRequest $request): Response
     {
-        return $this->authenticationService->login($request->email, $request->password);
+        return $this->userService->login($request->email, $request->password);
+    }
+
+    public function loginWithProvider(Request $request)
+    {
+        $provider = 'google';
+        $providerService = $this->providerServiceFactory->handle($provider);
+        return $this->userService->loginWithExternalProvider($request->all());
     }
 
     public function register(RegisterRequest $request): Response
@@ -40,18 +49,18 @@ class UserController extends Controller
 
     public function logout(Request $request): Response
     {
-        $this->authenticationService->logout($request->user());
+        $this->userService->logout($request->user());
         return response()->success();
     }
 
     public function sendPasswordResetLinkEmail(SendPasswordResetLinkEmailRequest $request): Response
     {
-        return $this->authenticationService->sendPasswordResetLinkEmail($request->email);
+        return $this->userService->sendPasswordResetLinkEmail($request->email);
     }
 
     public function resetPassword(ResetPasswordRequest $request): Response
     {
-        return $this->authenticationService->resetPassword(
+        return $this->userService->resetPassword(
             $request->email,
             $request->password,
             $request->password_confirmation,
