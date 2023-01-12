@@ -15,12 +15,31 @@ class SocialNetworkSeeder extends Seeder
     public function run()
     {
         $socialNetworks = [
-            ["name" => "LinkedIn", "link" => "https://www.linkedin.com", "logo" => "https://www.linkedin.com/images/linkedin_logo.png"],
-            ["name" => "GitHub", "link" => "https://www.github.com", "logo" => "https://www.github.com/images/github_logo.png"],
-            ["name" => "Facebook", "link" => "https://www.facebook.com", "logo" => "https://www.facebook.com/images/fb_icon_325x325.png"],
-            ["name" => "YouTube", "link" => "https://www.youtube.com", "logo" => "https://www.youtube.com/images/youtube_logo.png"],
-            ["name" => "Instagram", "link" => "https://www.instagram.com", "logo" => "https://www.instagram.com/images/instagram_logo.png"],
-            ["name" => "Twitter", "link" => "https://www.twitter.com", "logo" => "https://www.twitter.com/images/twitter_logo.png"],
+            [
+                "name" => "LinkedIn",
+                "link" => "https://www.linkedin.com",
+                "logo" => "https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png"
+            ],
+            [
+                "name" => "GitHub", "link" => "https://www.github.com",
+                "logo" => "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+            ],
+            [
+                "name" => "Facebook", "link" => "https://www.facebook.com",
+                "logo" => "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMvz62APrx07pMHBeiqz2NKdvvNFb3WOKXSA&usqp=CAU"
+            ],
+            [
+                "name" => "YouTube", "link" => "https://www.youtube.com",
+                "logo" => "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_Logo_2017.svg/1200px-YouTube_Logo_2017.svg.png"
+            ],
+            [
+                "name" => "Instagram", "link" => "https://www.instagram.com",
+                "logo" => "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/1200px-Instagram_logo_2016.svg.png"
+            ],
+            [
+                "name" => "Twitter", "link" => "https://www.twitter.com",
+                "logo" => "https://cdn-icons-png.flaticon.com/512/124/124021.png"
+            ],
         ];
 
         foreach ($socialNetworks as $socialNetwork) {

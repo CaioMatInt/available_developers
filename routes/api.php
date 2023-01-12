@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use \App\Http\Controllers\Authentication\AuthenticationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,13 +15,13 @@ use \App\Http\Controllers\Authentication\AuthenticationController;
 */
 
 Route::prefix('authentication')->group(function () {
-    Route::post('login', [AuthenticationController::class, 'login'])->name('authentication.login');
-    Route::post('register', [AuthenticationController::class, 'register'])->name('authentication.register');
-    Route::post('password/forgot', [AuthenticationController::class, 'sendPasswordResetLinkEmail'])->name('authentication.password.forgot');
-    Route::post('password/reset', [AuthenticationController::class, 'resetPassword'])->name('authentication.password.reset');
+    Route::post('login', [UserController::class, 'login'])->name('user.login');
+    Route::post('register', [UserController::class, 'register'])->name('user.register');
+    Route::post('password/forgot', [UserController::class, 'sendPasswordResetLinkEmail'])->name('user.password.forgot');
+    Route::post('password/reset', [UserController::class, 'resetPassword'])->name('user.password.reset');
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('logout', [AuthenticationController::class, 'logout'])->name('authentication.logout');
-        Route::get('me', [AuthenticationController::class, 'getAuthenticatedUser'])->name('authentication.me');
+        Route::post('logout', [UserController::class, 'logout'])->name('user.logout');
+        Route::get('me', [UserController::class, 'getAuthenticatedUser'])->name('user.me');
     });
 });

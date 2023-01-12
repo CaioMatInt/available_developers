@@ -17,4 +17,9 @@ class UserRepository
     {
         return $this->model->create($data);
     }
+
+    public function getAuthenticatedUser(): User
+    {
+        return auth()->user();
+    }
 }
