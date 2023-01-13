@@ -18,11 +18,11 @@ Route::prefix('users')->group(function () {
     Route::post('login', [UserController::class, 'login'])->name('user.login');
     Route::post('login/{provider_name}', [
         UserController::class, 'loginWithProvider'
-    ])->name('user.login');
+    ])->name('user.login.provider');
 
     Route::post('login/{provider_name}/callback', [
         UserController::class, 'loginCallbackOfProvider'
-    ])->name('user.login');
+    ])->name('user.login.provider.callback');
 
     Route::post('register', [UserController::class, 'register'])->name('user.register');
     Route::post('password/forgot', [UserController::class, 'sendPasswordResetLinkEmail'])->name('user.password.forgot');

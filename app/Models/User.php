@@ -23,7 +23,9 @@ class User extends Authenticatable
         'email',
         'profile_type',
         'profile_id',
-        'password'
+        'password',
+        'oauth_id',
+        'oauth_type'
     ];
 
     /**

@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         $provider = 'google';
         $providerService = $this->providerServiceFactory->handle($provider);
-        return $this->userService->loginWithExternalProvider($request->all());
+        return $providerService->callback($request->all());
     }
 
     public function register(RegisterRequest $request): Response
