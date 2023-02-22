@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\ProviderEnum;
 use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\RedirectToLoginWithProviderRequest;
 use App\Http\Requests\User\RegisterRequest;
 use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\SendPasswordResetLinkEmailRequest;
@@ -33,7 +35,7 @@ class UserController extends Controller
         ]));
     }
 
-    public function redirectToLoginWithProvider(Request $request): RedirectResponse
+    public function redirectToLoginWithProvider(RedirectToLoginWithProviderRequest $request): RedirectResponse
     {
         return $this->providerService->redirect($request->route('provider_name'));
     }

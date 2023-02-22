@@ -40,13 +40,13 @@ class AuthenticationTest extends TestCase
     }
 
 
-    public function test_a_valid_and_verified_user_can_login_with_correct_email_and_password()
+    /** @test **/
+    public function a_valid_and_verified_user_can_login_with_correct_email_and_password()
     {
         $userCredentials['email'] = $this->administrator->email;
         $userCredentials['password'] = $this->unhashedUserPassword;
 
         $response = $this->post(route('user.login'), $userCredentials);
-        dd($response->json());
         $response->assertOk();
         $response->assertJsonStructure([
             'access_token',
@@ -54,7 +54,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_user_cant_login_without_sending_password()
+    /** @test **/
+    public function user_cant_login_without_sending_password()
     {
         $userCredentials['email'] = $this->administrator->email;
 
@@ -65,7 +66,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_user_cant_login_without_sending_email()
+    /** @test **/
+    public function user_cant_login_without_sending_email()
     {
         $userCredentials['password'] = $this->unhashedUserPassword;
 
@@ -76,7 +78,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_user_cant_login_with_unverified_email()
+    /** @test **/
+    public function user_cant_login_with_unverified_email()
     {
         Session::start();
 
@@ -90,7 +93,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_user_cant_login_with_invalid_password()
+    /** @test **/
+    public function user_cant_login_with_invalid_password()
     {
         $userCredentials['email'] = $this->administrator->email;
         $userCredentials['password'] = 'invalidPassword';
@@ -102,7 +106,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_user_cant_login_with_invalid_email()
+    /** @test **/
+    public function user_cant_login_with_invalid_email()
     {
         Session::start();
 
@@ -116,7 +121,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_can_register_user_with_valid_data()
+    /** @test **/
+    public function can_register_user_with_valid_data()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = 'testing@mail.com';
@@ -127,7 +133,8 @@ class AuthenticationTest extends TestCase
         $this->post(route('user.register'), $userData)->assertCreated();
     }
 
-    public function test_cant_register_user_without_email()
+    /** @test **/
+    public function cant_register_user_without_email()
     {
         $userData['name'] = 'Test User';
         $userData['password'] = '123456';
@@ -139,7 +146,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_user_without_name()
+    /** @test **/
+    public function cant_register_user_without_name()
     {
         $userData['email'] = 'email@mail.com';
         $userData['password'] = '123456';
@@ -151,7 +159,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_user_without_password()
+    /** @test **/
+    public function cant_register_user_without_password()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = 'email@mail.com';
@@ -163,7 +172,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_user_with_an_email_that_is_already_in_use()
+    /** @test **/
+    public function cant_register_user_with_an_email_that_is_already_in_use()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = $this->administrator->email;
@@ -176,7 +186,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_user_with_an_invalid_email()
+    /** @test **/
+    public function cant_register_user_with_an_invalid_email()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = 'email';
@@ -189,7 +200,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_user_with_a_name_longer_than_255_characters()
+    /** @test **/
+    public function cant_register_user_with_a_name_longer_than_255_characters()
     {
         $userData['name'] = str_repeat('a', 256);
         $userData['email'] = 'email@mail.com';
@@ -202,7 +214,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_user_with_an_integer_name()
+    /** @test **/
+    public function cant_register_user_with_an_integer_name()
     {
         $userData['name'] = 123;
         $userData['email'] = 'email';
@@ -215,7 +228,8 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_register_with_a_password_with_less_than_8_characters()
+    /** @test **/
+    public function cant_register_with_a_password_with_less_than_8_characters()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = 'email@mail.com';
@@ -230,13 +244,15 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_non_authenticated_user_cannot_logout() {
+    /** @test **/
+    public function non_authenticated_user_cannot_logout() {
         $response = $this->json('POST', route('user.logout'));
 
         $response->assertUnauthorized();
     }
 
-    public function test_authenticated_user_can_logout()
+    /** @test **/
+    public function authenticated_user_can_logout()
     {
         Sanctum::actingAs(
             $this->administrator
@@ -246,7 +262,8 @@ class AuthenticationTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_can_show_current_authenticated_user()
+    /** @test **/
+    public function can_show_current_authenticated_user()
     {
         $response = $this->actingAs($this->administrator)->get(route('user.me'));
         $response->assertOk();
@@ -258,12 +275,14 @@ class AuthenticationTest extends TestCase
         ]);
     }
 
-    public function test_cant_show_current_authenticated_user_when_not_logged_in()
+    /** @test **/
+    public function cant_show_current_authenticated_user_when_not_logged_in()
     {
         $this->json('get', route('user.me'))->assertUnauthorized();
     }
 
-    public function test_cant_ask_for_recovering_email_when_there_is_no_user_registered_with_it()
+    /** @test **/
+    public function cant_ask_for_recovering_email_when_there_is_no_user_registered_with_it()
     {
         $response = $this->json('POST', route('user.password.forgot'), [
             'email' => 'invalid@email.com'
@@ -276,7 +295,8 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_can_ask_for_email_recovering_when_sending_an_email_that_there_is_a_user_registered_with_it()
+    /** @test **/
+    public function can_ask_for_email_recovering_when_sending_an_email_that_there_is_a_user_registered_with_it()
     {
         $user = $this->administrator;
         $response = $this->json('POST', route('user.password.forgot'), [
@@ -286,7 +306,8 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200)->assertJsonStructure(['message']);
     }
 
-    public function test_can_reset_password_when_token_is_valid()
+    /** @test **/
+    public function can_reset_password_when_token_is_valid()
     {
         $user = $this->administrator;
         $token = Password::broker()->createToken($user);
@@ -306,7 +327,8 @@ class AuthenticationTest extends TestCase
         $this->assertEquals("Your password has been reset!", $response['message']);
     }
 
-    public function test_cant_reset_password_when_token_is_invalid()
+    /** @test **/
+    public function cant_reset_password_when_token_is_invalid()
     {
         $user = $this->administrator;
         $newPassword = '12345678';
@@ -325,7 +347,8 @@ class AuthenticationTest extends TestCase
         $this->assertEquals("This password reset token is invalid.", $response['message']);
     }
 
-    public function test_cant_reset_password_when_email_is_not_valid()
+    /** @test **/
+    public function cant_reset_password_when_email_is_not_valid()
     {
         $newPassword = '12345678';
 
@@ -343,7 +366,8 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_cant_reset_password_when_password_has_less_than_8_characters()
+    /** @test **/
+    public function cant_reset_password_when_password_has_less_than_8_characters()
     {
         $user = $this->administrator;
         $token = Password::broker()->createToken($user);
@@ -363,7 +387,8 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_cant_reset_password_when_confirming_a_wrong_password()
+    /** @test **/
+    public function cant_reset_password_when_confirming_a_wrong_password()
     {
         $user = $this->administrator;
         $token = Password::broker()->createToken($user);
@@ -384,7 +409,8 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_cant_reset_password_when_not_confirming_password()
+    /** @test **/
+    public function cant_reset_password_when_not_confirming_password()
     {
         $user = $this->administrator;
         $token = Password::broker()->createToken($user);
@@ -404,7 +430,8 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_cant_reset_password_when_not_sending_token()
+    /** @test **/
+    public function cant_reset_password_when_not_sending_token()
     {
         $user = $this->administrator;
         $newPassword = '12345678';
@@ -423,7 +450,8 @@ class AuthenticationTest extends TestCase
         );
     }
 
-    public function test_cant_reset_password_with_expired_token()
+    /** @test **/
+    public function cant_reset_password_with_expired_token()
     {
         $user = User::factory()->create();
         $token = Password::broker()->createToken($user);
@@ -447,7 +475,8 @@ class AuthenticationTest extends TestCase
         $this->assertEquals("This password reset token is invalid.", $response->json('message'));
     }
 
-    public function test_can_register_user_with_administrator_profile_type()
+    /** @test **/
+    public function can_register_user_with_administrator_profile_type()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = 'testing@mail.com';
@@ -461,5 +490,29 @@ class AuthenticationTest extends TestCase
             'profile_type' => 'The selected profile type is invalid.'
         ]);
     }
+
+    /** @test **/
+    public function cant_redirect_to_login_with_provider_using_an_invalid_provider_name()
+    {
+        $response = $this->get(route('user.login') . '/' . 'invalid-provider');
+
+        $response->assertSessionHasErrors([
+            'provider_name' => 'The selected provider name is invalid.'
+        ]);
+    }
+
+    /** @test **/
+    public function can_redirect_to_login_with_provider_using_a_valid_provider_name()
+    {
+        $providers = config('auth.third_party_login_providers');
+
+        if ($providers) {
+            $provider = array_key_first($providers);
+            $response = $this->get(route('user.login') . '/' . $provider);
+            $response->assertRedirect();
+        }
+    }
+
+    //**@@TODO: loginCallbackOfProvider test
 }
 

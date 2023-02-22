@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('users')->group(function () {
     Route::post('login', [UserController::class, 'login'])->name('user.login');
     Route::get('login/{provider_name}', [
-        UserController::class, 'loginWithProvider'
+        UserController::class, 'redirectToLoginWithProvider'
     ])->name('user.login.provider');
 
     Route::get('login/{provider_name}/callback', [
