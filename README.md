@@ -2,7 +2,7 @@
   <img src="https://i.ibb.co/87NsT3s/templogo-WITHOUTTIRAS.jpg">
 </p>
 
-<h3 align="center"> A platform that connects <spam style="color:#E30814">recruiters</spam> with <spam style="color:#E30814">developers</spam> seeking <spam style="color:#E30814">employment</spam>.</h4>
+<h3 align="center"> A platform that connects <spam style="color:#E30814">tech recruiters</spam> with <spam style="color:#E30814">developers</spam>.</h4>
 
 <hr />
 
