@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->string('oauth_id')->nullable();
-            $table->string('oauth_type')->nullable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('provider_id')->nullable();
+            $table->string('provider')->nullable();
         });
     }
 
@@ -27,8 +27,8 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function ($table) {
-            $table->dropColumn('oauth_id');
-            $table->dropColumn('oauth_type');
+            $table->dropColumn('provider_id');
+            $table->dropColumn('provider');
         });
     }
 };

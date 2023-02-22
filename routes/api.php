@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->group(function () {
     Route::post('login', [UserController::class, 'login'])->name('user.login');
-    Route::post('login/{provider_name}', [
+    Route::get('login/{provider_name}', [
         UserController::class, 'loginWithProvider'
     ])->name('user.login.provider');
 
-    Route::post('login/{provider_name}/callback', [
+    Route::get('login/{provider_name}/callback', [
         UserController::class, 'loginCallbackOfProvider'
     ])->name('user.login.provider.callback');
 

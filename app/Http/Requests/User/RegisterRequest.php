@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Authentication;
+namespace App\Http\Requests\User;
 
 use App\Enum\ProfileTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;

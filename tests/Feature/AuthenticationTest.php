@@ -46,6 +46,7 @@ class AuthenticationTest extends TestCase
         $userCredentials['password'] = $this->unhashedUserPassword;
 
         $response = $this->post(route('user.login'), $userCredentials);
+        dd($response->json());
         $response->assertOk();
         $response->assertJsonStructure([
             'access_token',

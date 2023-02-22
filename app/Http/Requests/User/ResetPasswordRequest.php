@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Authentication;
+namespace App\Http\Requests\User;
 
-use App\Rules\EmailIsVerifiedRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,8 +24,10 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required','email', new EmailIsVerifiedRule()],
-            'password' => 'required|string'
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string|min:8',
+            'token' => 'required|string'
         ];
     }
 }

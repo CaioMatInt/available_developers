@@ -21,25 +21,20 @@ class UserService
         $this->repository = $userRepository;
     }
 
-    public function login(string $email, string $password): Response
+    public function login(string $email, string $password): void
     {
         $authAttemptWasSuccessful = Auth::attempt(['email' => $email, 'password' => $password]);
 
-        if ($authAttemptWasSuccessful) {
-            $responseData['name'] =  auth()->user()->name;
-            $responseData['access_token'] =  auth()->user()->createToken('LaravelSanctumAuth')->plainTextToken;
-
-            return response($responseData);
+        if (!$authAttemptWasSuccessful) {
+            throw ValidationException::withMessages([
+                'email' => ['These credentials do not match our records.'],
+            ]);
         }
-
-        throw ValidationException::withMessages([
-            'email' => ['These credentials do not match our records.'],
-        ]);
     }
 
-    public function loginWithExternalWebsite()
+    public function createUserToken(): string
     {
-        
+        return auth()->user()->createToken('LaravelSanctumAuth')->plainTextToken;
     }
 
     public function logout(User $user): void

@@ -22,4 +22,9 @@ class UserRepository
     {
         return auth()->user();
     }
+
+    public function findByProviderId(string $userProviderId): ?User
+    {
+        return $this->model->where('provider_id', $userProviderId)->first();
+    }
 }

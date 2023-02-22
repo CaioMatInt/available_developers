@@ -2,35 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Factories\Authentication\ProviderServiceFactory;
-use App\Http\Requests\Authentication\LoginRequest;
-use App\Http\Requests\Authentication\RegisterRequest;
-use App\Http\Requests\Authentication\ResetPasswordRequest;
-use App\Http\Requests\Authentication\SendPasswordResetLinkEmailRequest;
+use App\Http\Requests\User\LoginRequest;
+use App\Http\Requests\User\RegisterRequest;
+use App\Http\Requests\User\ResetPasswordRequest;
+use App\Http\Requests\User\SendPasswordResetLinkEmailRequest;
+use App\Http\Resources\UserLoginResource;
 use App\Http\Resources\UserResource;
 use App\Repositories\Eloquent\UserRepository;
+use App\Services\Authentication\ProviderService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class UserController extends Controller
 {
     public function __construct(
         private UserRepository $userRepository,
         private UserService $userService,
-        private ProviderServiceFactory $providerServiceFactory
+        private ProviderService $providerService,
     ) { }
 
     public function login(LoginRequest $request): Response
     {
-        return $this->userService->login($request->email, $request->password);
+        $this->userService->login($request->email, $request->password);
+        $userToken = $this->userService->createUserToken();
+        return response(UserLoginResource::make([
+            'user' => auth()->user(),
+            'token' => $userToken
+        ]));
     }
 
-    public function loginWithProvider(Request $request)
+    public function redirectToLoginWithProvider(Request $request): RedirectResponse
     {
-        $provider = 'google';
-        $providerService = $this->providerServiceFactory->handle($provider);
-        return $providerService->callback($request->all());
+        return $this->providerService->redirect($request->route('provider_name'));
+    }
+
+    public function loginCallbackOfProvider(Request $request): Response
+    {
+        $this->providerService->callback($request->route('provider_name'));
+        $userToken = $this->userService->createUserToken();
+        return response(UserLoginResource::make([
+            'user' => auth()->user(),
+            'token' => $userToken
+        ]));
     }
 
     public function register(RegisterRequest $request): Response
