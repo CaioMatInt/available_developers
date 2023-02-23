@@ -46,4 +46,9 @@ class ProviderService
 
         Auth::login($user, true);
     }
+
+
 }
+
+
+

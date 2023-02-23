@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Enum\ProfileTypeEnum;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -476,7 +478,7 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test **/
-    public function can_register_user_with_administrator_profile_type()
+    public function cant_register_user_with_administrator_profile_type()
     {
         $userData['name'] = 'Test User';
         $userData['email'] = 'testing@mail.com';
@@ -502,7 +504,7 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test **/
-    public function can_redirect_to_login_with_provider_using_a_valid_provider_name()
+    public function should_redirect_to_login_with_provider_using_a_valid_provider_name()
     {
         $providers = config('auth.third_party_login_providers');
 
@@ -511,6 +513,35 @@ class AuthenticationTest extends TestCase
             $response = $this->get(route('user.login') . '/' . $provider);
             $response->assertRedirect();
         }
+    }
+
+    /** @test **/
+    public function should_login_an_user_that_authenticated_successfully_with_google()
+    {
+        $user = User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'john_doe@gmail.com',
+            'provider' => 'google',
+            'provider_id' => '324234235235235555527'
+        ]);
+
+
+
+        $googleResponse = file_get_contents(base_path
+            ('tests/Mocks/Authentication/google_provider_authentication_response.json')
+        );
+
+        $googleResponse = json_decode($googleResponse);
+
+        $response = $this->post(route('user.login.provider.callback', 'google'), $googleResponse);
+
+
+
+
+
+
+
+
     }
 
     //**@@TODO: loginCallbackOfProvider test

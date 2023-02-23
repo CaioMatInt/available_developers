@@ -22,6 +22,9 @@ return new class extends Migration
             $table->unsignedInteger('profile_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('provider_id');
+            $table->foreign('provider_id')->references('id')->on('providers');
+            $table->string('external_provider_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

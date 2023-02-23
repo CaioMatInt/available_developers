@@ -25,7 +25,9 @@ class User extends Authenticatable
         'profile_id',
         'password',
         'oauth_id',
-        'oauth_type'
+        'oauth_type',
+        'provider_id',
+        'external_provider_id'
     ];
 
     /**
@@ -57,5 +59,10 @@ class User extends Authenticatable
     public function languages()
     {
         return $this->belongsToMany(Language::class);
+    }
+
+    public function provider()
+    {
+        return $this->belongsTo(Provider::class);
     }
 }
