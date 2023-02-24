@@ -2,53 +2,33 @@
 
 namespace App\Services\Authentication;
 
-use App\Repositories\Eloquent\UserRepository;
+use App\Models\Provider;
+use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ProviderService
 {
     public array $validProviderNames = [
-        'google',
-        'facebook',
-        'linkedin',
-        'github',
+        Provider::GOOGLE
     ];
 
     public function __construct(
-        private UserRepository $userRepository,
+        private UserService $userService,
+        private SocialiteService $socialiteService,
     ) { }
 
-    public function redirect(string $provider): RedirectResponse
+    public function redirect(string $providerName): RedirectResponse
     {
-        //@@TODO: remove this validation and create a Request
-        if (!in_array($provider, $this->validProviderNames)) {
-            throw new \Exception('Invalid provider name');
-        }
-
-        return Socialite::driver($provider)->stateless()->redirect();
+        return $this->socialiteService->redirect($providerName);
     }
 
-    public function callback(string $provider): void
+    public function callback(string $providerName): void
     {
-        $providerUser = Socialite::driver($provider)->stateless()->user();
-        $user = $this->userRepository->findByProviderId($providerUser->getId());
-
-        if (!$user) {
-            $user = $this->userRepository->create([
-                'name' => $providerUser->name,
-                'email' => $providerUser->email,
-                'provider' => $provider,
-                'provider_id' => $providerUser->id,
-            ]);
-        }
+        $providerUser = $this->socialiteService->login($providerName);
+        $user = $this->userService->findOrCreate($providerUser, $providerName);
 
         Auth::login($user, true);
     }
 
-
 }
-
-
-

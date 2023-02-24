@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enum\ProviderEnum;
+use App\Http\Requests\User\LoginCallbackOfProviderRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\RedirectToLoginWithProviderRequest;
 use App\Http\Requests\User\RegisterRequest;
@@ -22,7 +22,7 @@ class UserController extends Controller
     public function __construct(
         private UserRepository $userRepository,
         private UserService $userService,
-        private ProviderService $providerService,
+        private ProviderService $providerService
     ) { }
 
     public function login(LoginRequest $request): Response
@@ -40,7 +40,7 @@ class UserController extends Controller
         return $this->providerService->redirect($request->route('provider_name'));
     }
 
-    public function loginCallbackOfProvider(Request $request): Response
+    public function loginCallbackOfProvider(LoginCallbackOfProviderRequest $request): Response
     {
         $this->providerService->callback($request->route('provider_name'));
         $userToken = $this->userService->createUserToken();
@@ -83,5 +83,14 @@ class UserController extends Controller
             $request->password_confirmation,
             $request->token
         );
+    }
+
+    /**@@TODO: finish implementation to developer, recruiter and administrator, dev e recruiter can only update
+     *@@TODO: themselves, administrador can uppdate anyone
+     */
+    public function update(Request $request)
+    {
+        /*$this->userRepository->update($request->user(), $request->only('profile_type'));
+        return response()->success();*/
     }
 }

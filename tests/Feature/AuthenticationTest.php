@@ -3,14 +3,15 @@
 namespace Tests\Feature;
 
 use App\Enum\ProfileTypeEnum;
+use App\Models\Provider;
 use App\Models\User;
+use App\Services\Authentication\SocialiteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\File;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -22,11 +23,12 @@ class AuthenticationTest extends TestCase
     private User $administrator;
     private User $administratorWithoutUnverifiedEmail;
     private string $unhashedUserPassword = '123456';
+    private Provider $provider;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->mockUsers();
+        $this->mockVariables();
     }
 
     private function mockUsers(): void
@@ -39,6 +41,12 @@ class AuthenticationTest extends TestCase
             'password' => Hash::make($this->unhashedUserPassword),
             'email_verified_at' => null
         ]);
+    }
+
+    private function mockVariables()
+    {
+        $this->mockUsers();
+        $this->provider = Provider::factory()->create(['name' => Provider::GOOGLE]);
     }
 
 
@@ -516,16 +524,14 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test **/
-    public function should_login_an_user_that_authenticated_successfully_with_google()
+    public function registered_user_with_google_provider_should_be_able_to_login()
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'name' => 'John Doe',
             'email' => 'john_doe@gmail.com',
-            'provider' => 'google',
-            'provider_id' => '324234235235235555527'
+            'provider_id' => $this->provider->id,
+            'external_provider_id' => '324234235235235555527'
         ]);
-
-
 
         $googleResponse = file_get_contents(base_path
             ('tests/Mocks/Authentication/google_provider_authentication_response.json')
@@ -533,17 +539,48 @@ class AuthenticationTest extends TestCase
 
         $googleResponse = json_decode($googleResponse);
 
-        $response = $this->post(route('user.login.provider.callback', 'google'), $googleResponse);
 
+        $socialiteServiceStub = $this->createStub(SocialiteService::class);
+        $socialiteServiceStub->method('login')
+            ->willReturn($googleResponse);
+        $this->app->instance(SocialiteService::class, $socialiteServiceStub);
 
-
-
-
-
-
-
+        $this->get(route('user.login.provider.callback', $this->provider->name));
+        $this->assertTrue(Auth::check());
     }
 
-    //**@@TODO: loginCallbackOfProvider test
+    /** @test **/
+    public function unregistered_user_that_has_used_logged_with_google_should_be_able_to_get_an_account_and_get_logged()
+    {
+        $googleResponse = file_get_contents(base_path
+            ('tests/Mocks/Authentication/google_provider_authentication_response.json')
+        );
+
+        $googleResponse = json_decode($googleResponse);
+
+        $socialiteServiceStub = $this->createStub(SocialiteService::class);
+        $socialiteServiceStub->method('login')
+            ->willReturn($googleResponse);
+        $this->app->instance(SocialiteService::class, $socialiteServiceStub);
+
+        $this->get(route('user.login.provider.callback', $this->provider->name));
+
+        $this->assertDatabaseHas('users', [
+            'provider_id' => $this->provider->id,
+            'external_provider_id' => $googleResponse->id,
+            'name' => $googleResponse->name,
+            'email' => $googleResponse->email
+        ]);
+        $this->assertTrue(Auth::check());
+    }
+
+    /** @test **/
+    public function cannot_login_with_invalid_provider()
+    {
+        $response = $this->get(route('user.login.provider.callback', 'googlew'));
+        $response->assertSessionHasErrors([
+            'provider_name' => 'The selected provider name is invalid.'
+        ]);
+    }
 }
 

@@ -17,13 +17,17 @@ class AdministratorSeeder extends Seeder
     public function run()
     {
         $administrator = Administrator::factory()->create();
-        User::factory()->create([
-            'name' => 'General Administrator',
-            'email' => 'generaladmin@admin.com',
-            //@@TODO: Remove before realeasing
-            'password' => bcrypt('password'),
-            'profile_type' => ProfileTypeEnum::Administrator->value,
-            'profile_id' => $administrator->id,
-        ]);
+        try {
+            User::factory()->create([
+                'name' => 'General Administrator',
+                'email' => 'generaladmin@admin.com',
+                //@@TODO: Remove before realeasing
+                'password' => bcrypt('password'),
+                'profile_type' => ProfileTypeEnum::Administrator->value,
+                'profile_id' => $administrator->id,
+            ]);
+        }catch (\Exception $exception){
+            dd($exception);
+        }
     }
 }

@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
+use App\Enum\DeveloperTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Recruiter>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Provider>
  */
-class RecruiterFactory extends Factory
+class ProviderFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -18,8 +18,7 @@ class RecruiterFactory extends Factory
     public function definition()
     {
         return [
-            'created_at' => now(),
-            'updated_at' => now()
+            'name' => $this->faker->name(),
         ];
     }
 }

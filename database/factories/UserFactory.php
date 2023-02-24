@@ -30,8 +30,8 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'profile_type' => ProfileTypeEnum::Administrator,
             'profile_id' => Administrator::factory(),
-            'provider' => null,
             'provider_id' => null,
+            'external_provider_id' => null,
         ];
     }
 

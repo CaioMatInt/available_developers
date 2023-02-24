@@ -23,8 +23,17 @@ class UserRepository
         return auth()->user();
     }
 
-    public function findByProviderId(string $userProviderId): ?User
+    public function findByExternalProviderId(string $userExternalProviderId): ?User
     {
-        return $this->model->where('provider_id', $userProviderId)->first();
+        return $this->model->where('external_provider_id', $userExternalProviderId)->first();
+    }
+
+    //@@TODO: finish implementing this method
+    public function update(int $id, array $data): User
+    {
+        $user = $this->model->find($id);
+        $user->update($data);
+
+        return $user;
     }
 }
