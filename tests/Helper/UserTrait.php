@@ -25,5 +25,4 @@ trait UserTrait
             'email_verified_at' => null
         ]);
     }
-
 }

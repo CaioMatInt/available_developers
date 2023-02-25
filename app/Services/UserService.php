@@ -83,4 +83,19 @@ class UserService
             'email' => __($status)
         ]);
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function checkIfHasRegisteredWithAnotherProvider(string $userEmail, string $providerName): void
+    {
+        $user = $this->userRepository->findByEmailWithProvider($userEmail);
+
+        if ($user && $user->provider->name !== $providerName) {
+            /** @@TODO: Implement specific Exception */
+            throw new \Exception("You tried signing in as {$userEmail} via {$providerName},
+                which is not the authentication method you used during sign up.
+                 Try again using the authentication method you used during sign up.");
+        }
+    }
 }

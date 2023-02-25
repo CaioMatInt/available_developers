@@ -10,7 +10,7 @@
         "given_name": "John",
         "family_name": "M",
         "picture": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        "email": "johndoe@randomemail.com",
+        "email": "john_doe@gmail.com",
         "email_verified": true,
         "locale": "en-US",
         "id": "324234235235235555527",
@@ -21,7 +21,7 @@
         "id": "324234235235235555527",
         "nickname": null,
         "name": "John Doe",
-        "email": "johndoe@randomemail.com",
+        "email": "john_doe@gmail.com",
         "avatar": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
         "avatar_original": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
     },

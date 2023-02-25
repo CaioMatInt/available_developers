@@ -36,4 +36,9 @@ class UserRepository
 
         return $user;
     }
+
+    public function findByEmailWithProvider(string $email): ?User
+    {
+        return $this->model->where('email', $email)->with('provider')->first();
+    }
 }

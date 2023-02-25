@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Enum\ProfileTypeEnum;
-use App\Models\Provider;
 use App\Models\User;
 use App\Services\Authentication\SocialiteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,6 +14,7 @@ use Laravel\Sanctum\Sanctum;
 use Tests\Helper\ExternalProviderTrait;
 use Tests\Helper\ProviderTrait;
 use Tests\Helper\UserTrait;
+use Tests\Helper\SocialiteTrait;
 use Tests\TestCase;
 
 
@@ -24,6 +24,7 @@ class AuthenticationTest extends TestCase
     use UserTrait;
     use ProviderTrait;
     use ExternalProviderTrait;
+    use SocialiteTrait;
 
     public function setUp(): void
     {
@@ -34,16 +35,15 @@ class AuthenticationTest extends TestCase
     private function mockUsers(): void
     {
         $this->mockAdministrator();
-        $this->mockadministratorWithoutUnverifiedEmail();
-        $this->mockGoogleProvider();
-        $this->mockGoogleResponse();
+        $this->mockAdministratorWithoutUnverifiedEmail();
     }
 
     private function mockVariables()
     {
         $this->mockUsers();
+        $this->mockProviders();
+        $this->mockExternalProviderResponses();
     }
-
 
     /** @test **/
     public function a_valid_and_verified_user_can_login_with_correct_email_and_password()
@@ -521,30 +521,55 @@ class AuthenticationTest extends TestCase
     /** @test **/
     public function registered_user_with_google_provider_should_be_able_to_login()
     {
-        User::factory()->create([
-            'name' => 'John Doe',
-            'email' => 'john_doe@gmail.com',
+        User::factory()->make([
+            'name' => $this->googleResponse->name,
+            'email' => $this->googleResponse->email,
             'provider_id' => $this->googleProvider->id,
-            'external_provider_id' => '324234235235235555527'
+            'external_provider_id' => $this->googleResponse->id,
         ]);
 
-
-        $socialiteServiceStub = $this->createStub(SocialiteService::class);
-        $socialiteServiceStub->method('login')
-            ->willReturn($this->googleResponse);
-        $this->app->instance(SocialiteService::class, $socialiteServiceStub);
+        $this->makeSocialiteServiceStub('login', $this->googleResponse);
 
         $this->get(route('user.login.provider.callback', $this->googleProvider->name));
         $this->assertTrue(Auth::check());
     }
 
     /** @test **/
+    public function registered_user_with_facebook_provider_should_be_able_to_login()
+    {
+        User::factory()->make([
+            'name' => $this->facebookResponse->name,
+            'email' => $this->facebookResponse->email,
+            'provider_id' => $this->facebookProvider->id,
+            'external_provider_id' => $this->facebookResponse->id,
+        ]);
+
+        $this->makeSocialiteServiceStub('login', $this->facebookResponse);
+
+        $this->get(route('user.login.provider.callback', $this->facebookProvider->name));
+        $this->assertTrue(Auth::check());
+    }
+
+    /** @test **/
+    public function registered_user_with_github_provider_should_be_able_to_login()
+    {
+        User::factory()->make([
+            'name' => $this->githubResponse->name,
+            'email' => $this->githubResponse->email,
+            'provider_id' => $this->githubProvider->id,
+            'external_provider_id' => $this->githubResponse->id,
+        ]);
+
+        $this->makeSocialiteServiceStub('login', $this->githubResponse);
+
+        $this->get(route('user.login.provider.callback', $this->githubProvider->name));
+        $this->assertTrue(Auth::check());
+    }
+
+    /** @test **/
     public function unregistered_user_that_has_used_logged_with_google_should_be_able_to_get_an_account_and_get_logged()
     {
-        $socialiteServiceStub = $this->createStub(SocialiteService::class);
-        $socialiteServiceStub->method('login')
-            ->willReturn($this->googleResponse);
-        $this->app->instance(SocialiteService::class, $socialiteServiceStub);
+        $this->makeSocialiteServiceStub('login', $this->googleResponse);
 
         $this->get(route('user.login.provider.callback', $this->googleProvider->name));
 
@@ -558,6 +583,38 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test **/
+    public function unregistered_user_that_has_used_logged_with_facebook_should_be_able_to_get_an_account_and_get_logged()
+    {
+        $this->makeSocialiteServiceStub('login', $this->facebookResponse);
+
+        $this->get(route('user.login.provider.callback', $this->facebookProvider->name));
+
+        $this->assertDatabaseHas('users', [
+            'provider_id' => $this->facebookProvider->id,
+            'external_provider_id' => $this->facebookResponse->id,
+            'name' => $this->facebookResponse->name,
+            'email' => $this->facebookResponse->email
+        ]);
+        $this->assertTrue(Auth::check());
+    }
+
+    /** @test **/
+    public function unregistered_user_that_has_used_logged_with_github_should_be_able_to_get_an_account_and_get_logged()
+    {
+        $this->makeSocialiteServiceStub('login', $this->githubResponse);
+
+        $this->get(route('user.login.provider.callback', $this->githubProvider->name));
+
+        $this->assertDatabaseHas('users', [
+            'provider_id' => $this->githubProvider->id,
+            'external_provider_id' => $this->githubResponse->id,
+            'name' => $this->githubResponse->nickname,
+            'email' => $this->githubResponse->email
+        ]);
+        $this->assertTrue(Auth::check());
+    }
+
+    /** @test **/
     public function cannot_login_with_invalid_provider()
     {
         $response = $this->get(route('user.login.provider.callback', 'googlew'));
@@ -565,5 +622,31 @@ class AuthenticationTest extends TestCase
             'provider_name' => 'The selected provider name is invalid.'
         ]);
     }
-}
 
+    /** @test **/
+    public function cant_login_with_a_different_provider_as_the_registered()
+    {
+        $this->expectException(\Exception::class);
+
+        User::factory()->create([
+            'name' => $this->googleResponse->name,
+            'email' => 'random_email@gmail.com',
+            'provider_id' => $this->googleProvider->id,
+            'external_provider_id' => $this->googleResponse->id,
+        ]);
+
+        $githubResponseWithDifferentEmail = $this->githubResponse;
+        $githubResponseWithDifferentEmail->email = 'random_email@gmail.com';
+
+        $googleResponseWithDifferentEmail = $this->googleResponse;
+        $googleResponseWithDifferentEmail->email = 'random_email@gmail.com';
+
+        $this->makeSocialiteServiceStubWithMultipleResponses('login', [
+            ['google', $googleResponseWithDifferentEmail],
+            ['github', $githubResponseWithDifferentEmail],
+        ]);
+
+        $this->get(route('user.login.provider.callback', $this->githubProvider->name))->json();
+        $this->assertFalse(Auth::check());
+    }
+}
