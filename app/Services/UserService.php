@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Repositories\Eloquent\ProviderRepository;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Response;
@@ -16,8 +15,7 @@ use Illuminate\Validation\ValidationException;
 class UserService
 {
     public function __construct(
-        private UserRepository $userRepository,
-        private ProviderRepository $providerRepository,
+        private UserRepository $userRepository
     ) { }
 
     public function login(string $email, string $password): void

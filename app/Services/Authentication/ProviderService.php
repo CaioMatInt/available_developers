@@ -28,7 +28,7 @@ class ProviderService
 
         if (!$user) {
             $user = $this->userRepository->create([
-                'name' => $providerUser->name,
+                'name' => $providerUser->name ?? $providerUser->nickname,
                 'email' => $providerUser->email,
                 'provider_id' => $this->providerRepository->getIdByName($providerName),
                 'external_provider_id' => $providerUser->id,

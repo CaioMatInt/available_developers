@@ -10,6 +10,8 @@ use App\Services\Authentication\ProviderService;
 use App\Services\Authentication\SocialiteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Tests\Helper\ExternalProviderTrait;
+use Tests\Helper\ProviderTrait;
 use Tests\Helper\UserTrait;
 use Tests\TestCase;
 
@@ -18,8 +20,9 @@ class ProviderServiceTest extends TestCase
 {
     use RefreshDatabase;
     use UserTrait;
+    use ExternalProviderTrait;
+    use ProviderTrait;
     private ProviderService $providerService;
-    private array $googleResponse;
 
     public function setUp(): void
     {
@@ -31,12 +34,8 @@ class ProviderServiceTest extends TestCase
     private function mockVariables()
     {
         $this->mockAdministrator();
-
-        $googleResponse = file_get_contents(base_path
-            ('tests/Mocks/Authentication/google_provider_authentication_response.json')
-        );
-
-        $this->googleResponse = json_decode($googleResponse);
+        $this->mockGoogleProvider();
+        $this->mockGoogleResponse();
     }
 
     /** @test */
@@ -44,8 +43,8 @@ class ProviderServiceTest extends TestCase
     {
         $user = User::factory()->create([
             'external_provider_id' => $this->googleResponse->id,
-            'name' => $googleResponse->name,
-            'email' => $googleResponse->email
+            'name' => $this->googleResponse->name,
+            'email' => $this->googleResponse->email
         ]);
 
         $userRepositoryStub = $this->createStub(UserRepository::class);
@@ -54,7 +53,7 @@ class ProviderServiceTest extends TestCase
 
         $socialiteServiceStub = $this->createStub(SocialiteService::class);
         $socialiteServiceStub->method('login')
-            ->willReturn($googleResponse);
+            ->willReturn($this->googleResponse);
 
         $providerService = new ProviderService($userRepositoryStub, $socialiteServiceStub, app(ProviderRepository::class));
         $providerService->callback(Provider::GOOGLE);

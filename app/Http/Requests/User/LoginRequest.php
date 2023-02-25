@@ -25,8 +25,20 @@ class LoginRequest extends FormRequest
     public function rules()
     {
         return [
+            'provider_name' => ['sometimes', 'in:' . implode(',', config('auth.third_party_login_providers'))],
             'email' => ['required','email', new EmailIsVerifiedRule()],
             'password' => 'required|string'
         ];
+    }
+
+    public function all($keys = null)
+    {
+        $data = parent::all();
+
+        if ($this->route('provider_name')) {
+            $data['provider_name'] = $this->route('provider_name');
+        }
+
+        return $data;
     }
 }

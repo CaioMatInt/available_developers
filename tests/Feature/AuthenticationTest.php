@@ -9,10 +9,11 @@ use App\Services\Authentication\SocialiteService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\Sanctum;
+use Tests\Helper\ExternalProviderTrait;
+use Tests\Helper\ProviderTrait;
 use Tests\Helper\UserTrait;
 use Tests\TestCase;
 
@@ -21,8 +22,8 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
     use UserTrait;
-
-    private Provider $provider;
+    use ProviderTrait;
+    use ExternalProviderTrait;
 
     public function setUp(): void
     {
@@ -34,12 +35,13 @@ class AuthenticationTest extends TestCase
     {
         $this->mockAdministrator();
         $this->mockadministratorWithoutUnverifiedEmail();
+        $this->mockGoogleProvider();
+        $this->mockGoogleResponse();
     }
 
     private function mockVariables()
     {
         $this->mockUsers();
-        $this->provider = Provider::factory()->create(['name' => Provider::GOOGLE]);
     }
 
 
@@ -522,47 +524,35 @@ class AuthenticationTest extends TestCase
         User::factory()->create([
             'name' => 'John Doe',
             'email' => 'john_doe@gmail.com',
-            'provider_id' => $this->provider->id,
+            'provider_id' => $this->googleProvider->id,
             'external_provider_id' => '324234235235235555527'
         ]);
-
-        $googleResponse = file_get_contents(base_path
-            ('tests/Mocks/Authentication/google_provider_authentication_response.json')
-        );
-
-        $googleResponse = json_decode($googleResponse);
 
 
         $socialiteServiceStub = $this->createStub(SocialiteService::class);
         $socialiteServiceStub->method('login')
-            ->willReturn($googleResponse);
+            ->willReturn($this->googleResponse);
         $this->app->instance(SocialiteService::class, $socialiteServiceStub);
 
-        $this->get(route('user.login.provider.callback', $this->provider->name));
+        $this->get(route('user.login.provider.callback', $this->googleProvider->name));
         $this->assertTrue(Auth::check());
     }
 
     /** @test **/
     public function unregistered_user_that_has_used_logged_with_google_should_be_able_to_get_an_account_and_get_logged()
     {
-        $googleResponse = file_get_contents(base_path
-            ('tests/Mocks/Authentication/google_provider_authentication_response.json')
-        );
-
-        $googleResponse = json_decode($googleResponse);
-
         $socialiteServiceStub = $this->createStub(SocialiteService::class);
         $socialiteServiceStub->method('login')
-            ->willReturn($googleResponse);
+            ->willReturn($this->googleResponse);
         $this->app->instance(SocialiteService::class, $socialiteServiceStub);
 
-        $this->get(route('user.login.provider.callback', $this->provider->name));
+        $this->get(route('user.login.provider.callback', $this->googleProvider->name));
 
         $this->assertDatabaseHas('users', [
-            'provider_id' => $this->provider->id,
-            'external_provider_id' => $googleResponse->id,
-            'name' => $googleResponse->name,
-            'email' => $googleResponse->email
+            'provider_id' => $this->googleProvider->id,
+            'external_provider_id' => $this->googleResponse->id,
+            'name' => $this->googleResponse->name,
+            'email' => $this->googleResponse->email
         ]);
         $this->assertTrue(Auth::check());
     }
