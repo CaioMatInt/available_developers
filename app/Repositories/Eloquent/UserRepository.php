@@ -25,6 +25,7 @@ class UserRepository
 
     public function findByExternalProviderId(string $userExternalProviderId): ?User
     {
+        dd('passou aqui');
         return $this->model->where('external_provider_id', $userExternalProviderId)->first();
     }
 

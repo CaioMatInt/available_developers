@@ -85,20 +85,4 @@ class UserService
             'email' => __($status)
         ]);
     }
-
-    public function findOrCreate(object $providerUser, string $providerName): User
-    {
-        $user = $this->userRepository->findByExternalProviderId($providerUser->id);
-
-        if (!$user) {
-            $user = $this->userRepository->create([
-                'name' => $providerUser->name,
-                'email' => $providerUser->email,
-                'provider_id' => $this->providerRepository->getIdByName($providerName),
-                'external_provider_id' => $providerUser->id,
-            ]);
-        }
-
-        return $user;
-    }
 }

@@ -13,16 +13,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
 use Laravel\Sanctum\Sanctum;
+use Tests\Helper\UserTrait;
 use Tests\TestCase;
 
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
+    use UserTrait;
 
-    private User $administrator;
-    private User $administratorWithoutUnverifiedEmail;
-    private string $unhashedUserPassword = '123456';
     private Provider $provider;
 
     public function setUp(): void
@@ -33,14 +32,8 @@ class AuthenticationTest extends TestCase
 
     private function mockUsers(): void
     {
-        $this->administrator = User::factory()->create([
-            'password' => Hash::make($this->unhashedUserPassword)
-        ]);
-
-        $this->administratorWithoutUnverifiedEmail = User::factory()->create([
-            'password' => Hash::make($this->unhashedUserPassword),
-            'email_verified_at' => null
-        ]);
+        $this->mockAdministrator();
+        $this->mockadministratorWithoutUnverifiedEmail();
     }
 
     private function mockVariables()

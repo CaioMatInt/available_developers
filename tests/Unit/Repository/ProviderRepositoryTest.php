@@ -36,4 +36,3 @@ class ProviderRepositoryTest extends TestCase
         $this->providerRepository->getIdByName('invalid-provider');
     }
 }
-

@@ -2,20 +2,18 @@
 
 namespace App\Services\Authentication;
 
-use App\Models\Provider;
-use App\Services\UserService;
+use App\Repositories\Eloquent\ProviderRepository;
+use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ProviderService
 {
-    public array $validProviderNames = [
-        Provider::GOOGLE
-    ];
 
     public function __construct(
-        private UserService $userService,
+        private UserRepository $userRepository,
         private SocialiteService $socialiteService,
+        private ProviderRepository $providerRepository
     ) { }
 
     public function redirect(string $providerName): RedirectResponse
@@ -26,9 +24,17 @@ class ProviderService
     public function callback(string $providerName): void
     {
         $providerUser = $this->socialiteService->login($providerName);
-        $user = $this->userService->findOrCreate($providerUser, $providerName);
+        $user = $this->userRepository->findByExternalProviderId($providerUser->id);
+
+        if (!$user) {
+            $user = $this->userRepository->create([
+                'name' => $providerUser->name,
+                'email' => $providerUser->email,
+                'provider_id' => $this->providerRepository->getIdByName($providerName),
+                'external_provider_id' => $providerUser->id,
+            ]);
+        }
 
         Auth::login($user, true);
     }
-
 }
