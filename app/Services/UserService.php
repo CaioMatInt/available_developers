@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\DownloadFromUrlAndUpdateUserImage;
 use App\Models\User;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
@@ -15,7 +16,8 @@ use Illuminate\Validation\ValidationException;
 class UserService
 {
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private FileUploadService $fileUploadService
     ) { }
 
     public function login(string $email, string $password): void
@@ -97,5 +99,10 @@ class UserService
                 which is not the authentication method you used during sign up.
                  Try again using the authentication method you used during sign up.");
         }
+    }
+
+    public function updateUserImageWithProviderAvatarUrl(string $avatarUrl, int $userId): void
+    {
+        DownloadFromUrlAndUpdateUserImage::dispatch(app(FileUploadService::class), $avatarUrl, $userId);
     }
 }

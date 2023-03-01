@@ -10,8 +10,10 @@ use App\Http\Requests\User\ResetPasswordRequest;
 use App\Http\Requests\User\SendPasswordResetLinkEmailRequest;
 use App\Http\Resources\UserLoginResource;
 use App\Http\Resources\UserResource;
+use App\Jobs\DownloadFromUrlAndUpdateUserImage;
 use App\Repositories\Eloquent\UserRepository;
 use App\Services\Authentication\ProviderService;
+use App\Services\FileUploadService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -60,6 +62,11 @@ class UserController extends Controller
 
     public function getAuthenticatedUser(): Response
     {
+        $serv = app(FileUploadService::class);
+        DownloadFromUrlAndUpdateUserImage::dispatchNow(app(FileUploadService::class),
+            'https://media.contentapi.ea.com/content/dam/eacom/lost-in-random/images/2021/06/lost-in-random-feature-image-16x9.jpg.adapt.crop191x100.1200w.jpg',
+            1);
+
         $userResource = new UserResource($this->userRepository->getAuthenticatedUser());
         return response($userResource);
     }

@@ -6,6 +6,7 @@ use App\Repositories\Eloquent\ProviderRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ProviderService
@@ -29,18 +30,22 @@ class ProviderService
     public function callback(string $providerName): void
     {
         $providerUser = $this->socialiteService->login($providerName);
+
         $user = $this->userRepository->findByExternalProviderId($providerUser->id);
 
         if (!$user) {
             $this->userService->checkIfHasRegisteredWithAnotherProvider($providerUser->email, $providerName);
 
-            dd('stop');
             $user = $this->userRepository->create([
                 'name' => $providerUser->name ?? $providerUser->nickname,
                 'email' => $providerUser->email,
                 'provider_id' => $this->providerRepository->getIdByName($providerName),
                 'external_provider_id' => $providerUser->id,
             ]);
+
+            if ($providerUser->avatar) {
+                $this->userService->updateUserImageWithProviderAvatarUrl($providerUser->avatar, $user->id);
+            }
         }
 
         Auth::login($user, true);
