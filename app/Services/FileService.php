@@ -4,10 +4,10 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
 
-class FileUploadService
+class FileService
 {
 
-    public function downloadFileFromUrlAndUploadIt(string $fileUrl, string $path, string $name): string
+    public function save(string $fileUrl, string $path, string $name): string
     {
         $downloadedFile = file_get_contents($fileUrl);
         $fileExtension = pathinfo($fileUrl, PATHINFO_EXTENSION);

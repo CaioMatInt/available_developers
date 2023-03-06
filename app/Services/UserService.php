@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Jobs\DownloadFromUrlAndUpdateUserImage;
+use App\Jobs\DownloadAndUpdateUserImageJob;
 use App\Models\User;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
@@ -17,7 +17,7 @@ class UserService
 {
     public function __construct(
         private UserRepository $userRepository,
-        private FileUploadService $fileUploadService
+        private FileService $fileUploadService
     ) { }
 
     public function login(string $email, string $password): void
@@ -101,8 +101,8 @@ class UserService
         }
     }
 
-    public function updateUserImageWithProviderAvatarUrl(string $avatarUrl, int $userId): void
+    public function updateUserImageWithProviderAvatarUrl(string $userImageUrl, int $userId): void
     {
-        DownloadFromUrlAndUpdateUserImage::dispatch(app(FileUploadService::class), $avatarUrl, $userId);
+        DownloadAndUpdateUserImageJob::dispatch(app(FileService::class), $userImageUrl, $userId);
     }
 }
